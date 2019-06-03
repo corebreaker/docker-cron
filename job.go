@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/corebreaker/goerrors"
 	"os"
 	"os/exec"
 	"time"
 
 	"github.com/gorhill/cronexpr"
+	"github.com/corebreaker/goerrors"
 )
 
 var (
@@ -43,8 +43,30 @@ type Job struct {
 }
 
 func (j Job) Run() {
-	cmd := exec.Command(command, append(args, j.Container, j.Command)...)
-	if err := cmd.Run(); err != nil {
+	logerr := func(err error) {
 		LogError("Command error on %s (%s): %s", j.Container, j.Command, err)
+	}
+
+	cmd := exec.Command(command, append(args, j.Container, j.Command)...)
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		logerr(err)
+
+		return
+	}
+
+	stderr, err := cmd.StdoutPipe()
+	if err != nil {
+		logerr(err)
+
+		return
+	}
+
+	MakeOutputPipe(stdout, cmd, "OUT", j.Container).Start()
+	MakeOutputPipe(stderr, cmd, "ERR", j.Container).Start()
+
+	if err := cmd.Run(); err != nil {
+		logerr(err)
 	}
 }
