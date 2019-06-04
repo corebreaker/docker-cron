@@ -43,22 +43,25 @@ type Job struct {
 }
 
 func (j Job) Run() {
+	cmd := exec.Command(command, append(args, j.Container, j.Command)...)
+
 	logerr := func(err error) {
 		LogError("Command error on %s (%s): %s", j.Container, j.Command, err)
+		LogDebug("Command: %s %s", cmd.Path, cmd.Args)
+		LogDebug("Process State: %s", cmd.ProcessState)
+		LogDebug("CWD:", cmd.Dir)
 	}
-
-	cmd := exec.Command(command, append(args, j.Container, j.Command)...)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		logerr(err)
+		logerr(gerr.DecorateError(err))
 
 		return
 	}
 
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		logerr(err)
+		logerr(gerr.DecorateError(err))
 
 		return
 	}
@@ -71,6 +74,6 @@ func (j Job) Run() {
 	MakeOutputPipe(stderr, "ERR", j.Container).Start()
 
 	if err := cmd.Wait(); err != nil {
-		logerr(err)
+		logerr(gerr.DecorateError(err))
 	}
 }

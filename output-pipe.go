@@ -25,7 +25,11 @@ func (p OutputPipe) Start() {
 			out, err := in.ReadString('\n')
 			if err != nil {
 				if (err != io.EOF) && (err != os.ErrClosed) {
-					LogError(tmpl, p.outType, p.container, err)
+					pathErr, ok := err.(*os.PathError)
+
+					if (!ok) || ((pathErr.Err != io.EOF) && (pathErr.Err != os.ErrClosed)) {
+						LogError(tmpl, p.outType, p.container, err)
+					}
 				}
 
 				return
