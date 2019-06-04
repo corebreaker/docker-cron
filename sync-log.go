@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 	"sync"
+
+	gerr "github.com/corebreaker/goerrors"
 )
 
 var (
@@ -17,7 +19,7 @@ func LogFatal(msg string, args ...interface{}) {
 	logMtx.Lock()
 	defer logMtx.Unlock()
 
-	log.Printf("[FATL] " + msg, args...)
+	log.Printf("[FATAL] " + msg, args...)
 
 	exit()
 }
@@ -26,19 +28,30 @@ func LogError(msg string, args ...interface{}) {
 	logMtx.Lock()
 	defer logMtx.Unlock()
 
-	log.Printf("[ERRO] " + msg, args...)
+	log.Printf("[ERROR] " + msg, args...)
 }
 
 func LogWarn(msg string, args ...interface{}) {
 	logMtx.Lock()
 	defer logMtx.Unlock()
 
-	log.Printf("[WARN] " + msg, args...)
+	log.Printf("[WARN]  " + msg, args...)
 }
 
 func LogInfo(msg string, args ...interface{}) {
 	logMtx.Lock()
 	defer logMtx.Unlock()
 
-	log.Printf("[INFO] " + msg, args...)
+	log.Printf("[INFO]  " + msg, args...)
+}
+
+func LogDebug(msg string, args ...interface{}) {
+	if !gerr.GetDebug() {
+		return
+	}
+
+	logMtx.Lock()
+	defer logMtx.Unlock()
+
+	log.Printf("[DEBUG] " + msg, args...)
 }

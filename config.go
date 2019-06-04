@@ -61,7 +61,7 @@ func readConfig(configPath string) ([]*Job, error) {
 }
 
 func UpdateConfig(configPath string) error {
-	LogInfo("Updating config")
+	LogDebug("Updating config")
 
 	configJobs, err := readConfig(configPath)
 	if err != nil {
