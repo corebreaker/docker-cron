@@ -20,8 +20,14 @@ func (h tFileEventHandler) Check(event *fsevents.FsEvent) bool {
 }
 
 func (h tFileEventHandler) GetMask() uint32 {
-	return fsevents.FileChangedEvent|fsevents.FileCreatedEvent
+	return fsevents.FileChangedEvent | fsevents.FileCreatedEvent
 }
+
+type tFallbackHandler struct {}
+
+func (tFallbackHandler) Handle(w *fsevents.Watcher, event *fsevents.FsEvent) error { return nil }
+func (tFallbackHandler) Check(event *fsevents.FsEvent) bool                        { return true }
+func (tFallbackHandler) GetMask() uint32                                           { return fsevents.AllEvents }
 
 func InitAutoUpdate() error {
 	confPath, err := filepath.Abs(os.Args[1])
@@ -42,7 +48,7 @@ func InitAutoUpdate() error {
 		}
 	}
 
-	mask := fsevents.FileChangedEvent|fsevents.FileCreatedEvent
+	mask := fsevents.FileChangedEvent | fsevents.FileCreatedEvent
 
 	confDir := filepath.Dir(confPath)
 	if !ioutil2.FileExists(confDir) {
@@ -58,11 +64,25 @@ func InitAutoUpdate() error {
 		return gerr.DecorateError(err)
 	}
 
+	if err := w.RegisterEventHandler(tFallbackHandler{}); err != nil {
+		return gerr.DecorateError(err)
+	}
+
 	go func() {
 		for err := range w.Errors {
-			LogError("%s", err)
+			LogError("%s", gerr.DecorateError(err))
 		}
 	}()
+
+	if err := w.StartAll(); err != nil {
+		func() {
+			defer gerr.DiscardPanic()
+
+			close(w.Errors)
+		}()
+
+		return gerr.DecorateError(err)
+	}
 
 	go w.WatchAndHandle()
 

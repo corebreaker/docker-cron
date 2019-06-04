@@ -70,8 +70,6 @@ func UpdateConfig(configPath string) error {
 
 	var jobs []*Job
 
-	lastTick := GetLastTick()
-
 	for i, job := range configJobs {
 		expr, err := ParseSpec(job.At)
 		if err != nil {
@@ -85,7 +83,6 @@ func UpdateConfig(configPath string) error {
 			Container: job.Container,
 			Command:   job.Command,
 			expr:      expr,
-			next:      expr.Next(lastTick),
 		})
 	}
 

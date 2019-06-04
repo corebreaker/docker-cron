@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/gorhill/cronexpr"
-	"github.com/corebreaker/goerrors"
+	gerr "github.com/corebreaker/goerrors"
 )
 
 var (
@@ -30,7 +30,7 @@ func init() {
 		args = []string{"exec"}
 
 	default:
-		LogFatal("%s", goerrors.MakeError("Bad command type; valid choices are: `standard`, `composer`"))
+		LogFatal("%s", gerr.MakeError("Bad command type; valid choices are: `standard`, `composer`"))
 	}
 }
 
@@ -56,17 +56,21 @@ func (j Job) Run() {
 		return
 	}
 
-	stderr, err := cmd.StdoutPipe()
+	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		logerr(err)
 
 		return
 	}
 
-	MakeOutputPipe(stdout, cmd, "OUT", j.Container).Start()
-	MakeOutputPipe(stderr, cmd, "ERR", j.Container).Start()
+	if err := cmd.Start(); err != nil {
+		logerr(err)
+	}
 
-	if err := cmd.Run(); err != nil {
+	MakeOutputPipe(stdout, "OUT", j.Container).Start()
+	MakeOutputPipe(stderr, "ERR", j.Container).Start()
+
+	if err := cmd.Wait(); err != nil {
 		logerr(err)
 	}
 }
