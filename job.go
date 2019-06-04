@@ -10,11 +10,19 @@ import (
 )
 
 var (
+	cwd string
 	command string
 	args []string
 )
 
 func init() {
+	var err error
+
+	cwd, err = os.Getwd()
+	if err != nil {
+		LogFatal("%s", gerr.DecorateError(err))
+	}
+
 	choice := os.Getenv("COMMAND_TYPE")
 	if choice == "" {
 		choice = "composer"
@@ -66,6 +74,7 @@ func (j Job) Run() {
 		return
 	}
 
+	cmd.Dir = cwd
 	if err := cmd.Start(); err != nil {
 		logerr(err)
 	}
