@@ -57,7 +57,7 @@ func (j Job) Run() {
 		LogError("Command error on %s (%s): %s", j.Container, j.Command, err)
 		LogDebug("Command: %s %s", cmd.Path, cmd.Args)
 		LogDebug("Process State: %s", cmd.ProcessState)
-		LogDebug("CWD:", cmd.Dir)
+		LogDebug("CWD: %s", cmd.Dir)
 	}
 
 	stdout, err := cmd.StdoutPipe()
