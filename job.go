@@ -5,8 +5,8 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/gorhill/cronexpr"
 	gerr "github.com/corebreaker/goerrors"
+	"github.com/gorhill/cronexpr"
 )
 
 var (
@@ -31,11 +31,11 @@ func init() {
 	switch choice {
 	case "standard":
 		command = "docker"
-		args = []string{"exec", "-ti"}
+		args = []string{"exec", "-t"}
 
 	case "composer":
 		command = "docker-compose"
-		args = []string{"exec"}
+		args = []string{"exec", "-T"}
 
 	default:
 		LogFatal("%s", gerr.MakeError("Bad command type; valid choices are: `standard`, `composer`"))
@@ -52,6 +52,19 @@ type Job struct {
 
 func (j Job) Run() {
 	cmd := exec.Command(command, append(args, j.Container, j.Command)...)
+
+	nullFile, err := os.Open(os.DevNull)
+	if err != nil {
+		LogError("Command error on %s (%s): %s", j.Container, j.Command, err)
+		LogDebug("Command: %s %s", cmd.Path, cmd.Args)
+
+		return
+	}
+
+	defer func() { _ = nullFile.Close() }()
+
+	cmd.Stdin = nullFile
+	cmd.Dir = cwd
 
 	logerr := func(err error) {
 		LogError("Command error on %s (%s): %s", j.Container, j.Command, err)
@@ -74,7 +87,6 @@ func (j Job) Run() {
 		return
 	}
 
-	cmd.Dir = cwd
 	if err := cmd.Start(); err != nil {
 		logerr(err)
 	}

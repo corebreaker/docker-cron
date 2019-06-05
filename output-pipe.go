@@ -8,19 +8,19 @@ import (
 )
 
 type OutputPipe struct {
-	in io.ReadCloser
-	outType string
+	in        io.ReadCloser
+	outType   string
 	container string
 }
 
 func (p OutputPipe) Start() {
-	defer func() { _ = p.in.Close() }()
-
 	in := bufio.NewReader(p.in)
 
 	tmpl := "[%s] {%s}: %s"
 
 	go func() {
+		defer func() { _ = p.in.Close() }()
+
 		for {
 			out, err := in.ReadString('\n')
 			if err != nil {
@@ -42,8 +42,8 @@ func (p OutputPipe) Start() {
 
 func MakeOutputPipe(in io.ReadCloser, outType, container string) OutputPipe {
 	return OutputPipe{
-		in: in,
-		outType: outType,
+		in:        in,
+		outType:   outType,
 		container: container,
 	}
 }
