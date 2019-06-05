@@ -6,3 +6,10 @@
 [![GitHub license](https://img.shields.io/github/license/corebreaker/docker-cron.svg?color=blue&style=plastic)](https://github.com/corebreaker/docker-cron/blob/master/LICENSE)
 [![Release](https://img.shields.io/github/release/corebreaker/docker-cron.svg?style=plastic)](https://github.com/corebreaker/docker-cron/releases)
 [![Dependency status](https://img.shields.io/librariesio/github/corebreaker/docker-cron.svg?style=plastic)](https://libraries.io/github/corebreaker/docker-cron)
+
+## Todo
+
+- [ ] Complete README
+- [ ] Split `main` package to sub-packages
+- [ ] Add Coverage
+- [ ] Involve Go Report score
