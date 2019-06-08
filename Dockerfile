@@ -8,7 +8,7 @@ RUN adduser -D docker-cron && echo 'docker:x:134:docker-cron' >>/etc/group
 COPY docker-cron entry-point.sh /home/docker-cron/
 RUN mkdir /projects && chown docker-cron:docker-cron /projects /home/docker-cron/*
 
-USER docker-cron:docker-cron
+USER docker-cron
 WORKDIR /home/docker-cron/
 VOLUME /projects
 
