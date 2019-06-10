@@ -2,10 +2,14 @@
 
 cd $(dirname $0)
 
-if [ -z "$PROJECT_NAME" ]; then
-    echo "No project name defined; the variable PROJECT_NAME must have a value"
+if [ -z $PROJECT_NAME ]; then
+    if [ -z $PROJECT_SOURCE_PATH ]; then
+        echo "No project name defined; the variable PROJECT_NAME or PROJECT_SOURCE_PATH must have a value"
 
-    exit 1
+        exit 1
+    fi
+
+    PROJECT_NAME=`basename $PROJECT_SOURCE_PATH`
 fi
 
 PROJECT_DIR="/projects/$PROJECT_NAME"
