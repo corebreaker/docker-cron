@@ -8,7 +8,7 @@ import (
 	gerr "github.com/corebreaker/goerrors"
 )
 
-func main() {
+func mainHandler() error {
 	switch strings.ToLower(os.Getenv("DEBUG")) {
 	case "1", "on", "yes", "y", "o":
 		gerr.SetDebug(true)
@@ -19,8 +19,14 @@ func main() {
 	if err := InitAutoUpdate(); err != nil {
 		LogError("%s", err)
 
-		return
+		return err
 	}
 
 	runtime.Goexit()
+
+	return nil
+}
+
+func main() {
+	gerr.CheckedMain(mainHandler)
 }
