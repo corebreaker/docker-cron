@@ -11,5 +11,7 @@
 
 - [ ] Complete README
 - [ ] Split `main` package to sub-packages
-- [ ] Add Coverage
+- [ ] Increase Tests
+- [ ] Increase Coverage
 - [ ] Involve Go Report score
+- [ ] Make dependencies up-to-date
