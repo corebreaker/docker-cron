@@ -5,7 +5,7 @@ ARG ALPINE_VERSION=3.9
 ARG DOCKER_COMPOSE_VERSION=1.25.0-rc1
 
 ARG BINARY_NAME=docker-cron
-ARG MASTER_USER=docker-cron
+ARG BASE_DIR=docker-cron
 
 ARG CONFIG_PATH=/etc/docker-config.env
 
@@ -44,7 +44,7 @@ ARG GO_VERSION
 ARG ALPINE_VERSION
 ARG DOCKER_COMPOSE_VERSION
 ARG BINARY_NAME
-ARG MASTER_USER
+ARG BASE_DIR
 ARG CONFIG_PATH
 
 LABEL maintainer="Corebreaker"
@@ -62,17 +62,13 @@ RUN echo "DOCKER_REPO='${DOCKER_REPO}'" >${CONFIG_PATH} \
     && echo "ALPINE_VERSION='${ALPINE_VERSION}'" >>${CONFIG_PATH} \
     && echo "DOCKER_COMPOSE_VERSION='${DOCKER_COMPOSE_VERSION}'" >>${CONFIG_PATH} \
     && echo "BINARY_NAME='${BINARY_NAME}'" >>${CONFIG_PATH} \
-    && echo "MASTER_USER='${BINARY_MASTER_USERNAME}'" >>${CONFIG_PATH} \
-    && echo "CRONBIN='/home/${MASTER_USER}/${BINARY_NAME}'" >>${CONFIG_PATH}
+    && echo "CRONBIN='/${BASE_DIR}/${BINARY_NAME}'" >>${CONFIG_PATH}
 
-RUN adduser --disabled-password ${MASTER_USER} && echo "docker:x:134:${MASTER_USER}" >>/etc/group
+RUN mkdir /projects /${BASE_DIR}
+COPY --from=builder /go/bin/${BINARY_NAME} /${BASE_DIR}/
+COPY entry-point.sh /${BASE_DIR}/
 
-COPY --from=builder /go/bin/${BINARY_NAME} /home/${MASTER_USER}/
-COPY entry-point.sh /home/${MASTER_USER}/
-RUN mkdir /projects && chown ${MASTER_USER}:${MASTER_USER} /projects /home/${MASTER_USER}/*
-
-USER ${MASTER_USER}
-WORKDIR /home/${MASTER_USER}/
+WORKDIR /${BASE_DIR}/
 VOLUME /projects
 
 ENTRYPOINT ["./entry-point.sh"]
