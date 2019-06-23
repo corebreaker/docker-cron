@@ -32,9 +32,11 @@ start() {
 }
 
 case "$1" in
-    "start") start;;
-    "shell") sh "$@";;
     "") echo "Available commandes: start, shell";;
+    "start") start;;
+    "shell")
+        shift
+        sh "$@";;
     *)
         echo "Unknown command: $1"
         exit 1;;
