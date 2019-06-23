@@ -10,15 +10,14 @@ ARG BASE_DIR=docker-cron
 ARG CONFIG_PATH=/etc/docker-config.env
 
 # Compilation stage
-#FROM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS builder
-FROM corebreaker/golang-build:latest AS builder
+FROM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS builder
 
 ARG DOCKER_REPO
 ARG BINARY_NAME
 
 # Install needed deps for building the binary
 # Git is required for fetching the dependencies.
-#RUN apk update && apk add --no-cache git gcc libc-dev ca-certificates tzdata && update-ca-certificates
+RUN apk update && apk add --no-cache git gcc libc-dev ca-certificates tzdata && update-ca-certificates
 
 # Import project into the container
 WORKDIR ${GOPATH}/src/github.com/${DOCKER_REPO}/
